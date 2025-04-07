@@ -5,13 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -40,7 +41,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 @Composable
 fun StudyBoardScreen() {
     var selectedTasks by remember { mutableStateOf(generateRandomTasks()) }
@@ -50,78 +50,57 @@ fun StudyBoardScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp)
+            .padding(5.dp)
             .imePadding(),
         horizontalAlignment = Alignment.Start
     ) {
-        // Заголовок с заданиями (увеличенные размеры)
         Row(modifier = Modifier.fillMaxWidth()) {
             selectedTasks.forEachIndexed { index, (task, _) ->
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(120.dp) // Увеличенная высота
+                        .height(60.dp)
                         .background(Color(0xFF6200EE))
-                        .padding(32.dp), // Увеличенный padding
+                        .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        task,
-                        fontSize = 35.sp, // Увеличенный размер шрифта
-                        color = Color.White
-                    )
+                    Text(task, fontSize = 16.sp, color = Color.White)
                 }
                 if (index < 2) {
-                    Divider(
-                        modifier = Modifier
-                            .height(120.dp)
-                            .width(4.dp) // Более толстый разделитель
-                            .background(Color.Black)
-                    )
+                    Divider(modifier = Modifier.height(60.dp).width(2.dp).background(Color.Black))
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(0.dp))
-
-        // Область для рисования (увеличенные размеры)
+        Spacer(modifier = Modifier.height(10.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
             repeat(3) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(650.dp) // Увеличенная высота
+                        .height(250.dp)
                         .background(Color.White)
-                        .padding(16.dp),
+                        .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     DrawingCanvas()
                 }
                 if (it < 2) {
-                    Divider(
-                        modifier = Modifier
-                            .height(650.dp)
-                            .width(4.dp)
-                            .background(Color.Black)
-                    )
+                    Divider(modifier = Modifier.height(250.dp).width(2.dp).background(Color.Black))
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(0.dp))
-
-        // Область ввода (увеличенные размеры)
+        Spacer(modifier = Modifier.height(10.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .imePadding()
+                .imePadding() // ✅ Учитываем клавиатуру для правильного отображения
         ) {
             selectedTasks.forEachIndexed { index, (_, correctAnswer) ->
                 Column(
                     modifier = Modifier
-                        .weight(0.6f)
+                        .weight(1f)
                         .background(Color(0xFF6200EE))
-                        .padding(16.dp), // Увеличенный padding
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     OutlinedTextField(
@@ -131,15 +110,9 @@ fun StudyBoardScreen() {
                                 userAnswers = userAnswers.toMutableList().also { it[index] = newValue }
                             }
                         },
-                        label = {
-                            Text(
-                                "Answer: x1,x2",
-                                color = Color.White,
-                                fontSize = 30.sp,
-                            )
-                        },
+                        label = { Text("Ответ", color = Color.White) },
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.colors(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
@@ -147,65 +120,35 @@ fun StudyBoardScreen() {
                             unfocusedContainerColor = Color(0xFF6200EE),
                             focusedIndicatorColor = answerColors[index],
                             unfocusedIndicatorColor = answerColors[index]
-                        ),
-                        textStyle = LocalTextStyle.current.copy(fontSize = 30.sp), // Больший размер текста
-                        modifier = Modifier.height(80.dp).width(550.dp) // Высота поля ввода
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Button(
-                        onClick = {
-                            answerColors = answerColors.toMutableList().also {
-                                it[index] = if (userAnswers[index] == correctAnswer) Color.Green else Color.Red
-                            }
-                        },
-                        modifier = Modifier
-                            .height(80.dp) // Высота кнопки
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            "Check",
-                            fontSize = 30.sp // Увеличенный размер шрифта
                         )
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Button(onClick = {
+                        answerColors = answerColors.toMutableList().also {
+                            it[index] = if (userAnswers[index] == correctAnswer) Color.Green else Color.Red
+                        }
+                    }) {
+                        Text("Проверить")
                     }
                 }
                 if (index < 2) {
-                    Divider(
-                        modifier = Modifier
-                            .height(200.dp) // Высота разделителя
-                            .width(4.dp)
-                            .background(Color.Black)
-                    )
+                    Divider(modifier = Modifier.height(130.dp).width(2.dp).background(Color.Black))
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Кнопка генерации (увеличенные размеры)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = {
-                    selectedTasks = generateRandomTasks()
-                    userAnswers = List(3) { "" }
-                    answerColors = List(3) { Color.Gray}
-                },
-                modifier = Modifier
-                    .height(100.dp) // Высота кнопки
-                    .fillMaxWidth(0.8f)
-            ) {
-                Text(
-                    "Generate new tasks",
-                    fontSize = 35.sp // Увеличенный размер шрифта
-                )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = {
+                selectedTasks = generateRandomTasks()
+                userAnswers = List(3) { "" }
+                answerColors = List(3) { Color.Gray }
+            }) {
+                Text("Сгенерировать новые задания")
             }
         }
     }
 }
+
 
 @Composable
 fun DrawingCanvas() {
@@ -214,32 +157,32 @@ fun DrawingCanvas() {
     var isErasing by remember { mutableStateOf(false) }
 
     Row(modifier = Modifier.fillMaxSize()) {
-        Canvas(
-            modifier = Modifier
-                .weight(1f).height(640.dp)
-                .background(Color.White)
-                .pointerInput(Unit) {
-                    detectDragGestures { change, _ ->
-                        change.consumeAllChanges()
-                        path = Path().apply {
-                            addPath(path)
-                            lineTo(change.position.x, change.position.y)
-                        }
+        Canvas(modifier = Modifier
+            .weight(1f)
+            .fillMaxSize()
+            .background(Color.White)
+            .pointerInput(Unit) {
+                detectDragGestures { change, _ ->
+                    change.consumeAllChanges()
+                    path = Path().apply {
+                        addPath(path)
+                        lineTo(change.position.x, change.position.y)
                     }
                 }
+            }
         ) {
             drawPath(
                 path,
                 color = if (isErasing) Color.White else selectedColor,
-                style = Stroke(width = 10f) // Более толстая линия
+                style = Stroke(width = 5f)
             )
         }
 
         Column(
             modifier = Modifier
-                .padding(10.dp)
+                .padding(5.dp)
                 .background(Color.White)
-                .padding(10.dp)
+                .padding(5.dp)
         ) {
             listOf(Color.Black, Color.Red, Color.Green).forEach { color ->
                 Button(
@@ -248,38 +191,29 @@ fun DrawingCanvas() {
                         isErasing = false
                     },
                     modifier = Modifier
-                        .size(50.dp) // Увеличенные кнопки
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = color)
+                        .size(25.dp)
+                        .padding(4.dp),colors = ButtonDefaults.buttonColors(containerColor = color)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(10.dp)
+                            .size(5.dp)
                             .background(color)
                     )
                 }
             }
-
             Button(
                 onClick = { isErasing = true },
-                modifier = Modifier
-                    .size(50.dp)
-                    .padding(8.dp),
+                modifier = Modifier.size(25.dp).padding(4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
             ) {
-                Text(
-                    "\uD83E\uDDFD",
-                    color = Color.White,
-                    fontSize = 24.sp // Увеличенный размер иконки
-                )
+                Text("\uD83E\uDDFD", color = Color.White)
             }
         }
     }
 }
-
 fun generateRandomTasks(): List<Pair<String, String>> {
-    val maxValue = 500
-    val maxCoefficient = 1000
+    val maxValue = 500 // Диапазон корней от -500 до 500
+    val maxCoefficient = 1000 // Ограничение на b и c
     val tasks = mutableListOf<Pair<String, String>>()
 
     repeat(3) {
@@ -290,28 +224,35 @@ fun generateRandomTasks(): List<Pair<String, String>> {
         var x2: Int
 
         do {
-            a = Random.nextInt(1, 10)
-            x1 = Random.nextInt(-maxValue, maxValue + 1)
+            a = Random.nextInt(1, 10) // Делаем коэффициент "a" небольшим
+            x1 = Random.nextInt(-maxValue, maxValue + 1) // Генерируем целые корни
             x2 = Random.nextInt(-maxValue, maxValue + 1)
 
+            // Вычисляем коэффициенты уравнения
             b = -a * (x1 + x2)
             c = a * x1 * x2
 
         } while (x1 == x2 || b !in -maxCoefficient..maxCoefficient || c !in -maxCoefficient..maxCoefficient)
+        // Проверяем, чтобы b и c не выходили за пределы -1000 до 1000
 
+        // Форматируем коэффициенты (негативные значения в скобки)
         fun formatCoefficient(value: Int): String {
             return if (value < 0) "($value)" else value.toString()
         }
 
-        val task = "Solve: ${formatCoefficient(a)}x² + ${formatCoefficient(b)}x + ${formatCoefficient(c)} = 0"
-        val answer = "$x1,$x2"
+        val task = "${formatCoefficient(a)}x² + ${formatCoefficient(b)}x + ${formatCoefficient(c)} = 0"
+        val answer = "$x1, $x2" // Ответ без запятых после чисел
 
         tasks.add(task to answer)
     }
     return tasks
 }
 
-@Preview(showBackground = true, device = "spec:width=3840px,height=2160px,dpi=320")
+
+
+
+
+@Preview(showBackground = true, device = "spec:width=1920px,height=1080px,dpi=320")
 @Composable
 fun PreviewStudyBoardScreen() {
     StudyBoardTheme {
